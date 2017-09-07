@@ -6,15 +6,15 @@ import paramiko
 import re
 import time
 
-
+#Defining the ui file to use with pyqt
 qtPasteConfigurationUIFile = "ui/PasteConfiguration.ui"
-qtProgressWindowUIFile = "ui/ProgressBar.ui"
 
+#Defining the gui environment with the ui file
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qtPasteConfigurationUIFile)
 
 TIMEOUT = 10
 
-
+#Class to color the terminal output
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -27,10 +27,13 @@ class bcolors:
 
 
 class Progress(QtCore.QThread):
+    #Class to run in another thread
+    #Signals defined, one for progress bar and the other one for status info
     notifyProgress = QtCore.pyqtSignal(int, str)
     notifyStatus = QtCore.pyqtSignal(str)
 
     def __init__(self, ip=None, host=None, username=None, password=None, delay=None, commands=None):
+        #Receiving all the data from the other class
         QtCore.QThread.__init__(self)
         self.ip = ip
         self.host = host
@@ -115,11 +118,14 @@ class Progress(QtCore.QThread):
 
 
 class MyApp(QtGui.QMainWindow, Ui_MainWindow):
+    # PyQT App class
     def __init__(self):
+        #definition of the main window
         QtGui.QMainWindow.__init__(self)
         Ui_MainWindow.__init__(self)
         self.setupUi(self)
 
+        #Matching the events to functions
         self.plainTextEditCommands.textChanged.connect(self.FieldTextChanged)
         self.lineEditHostname.textChanged.connect(self.FieldTextChanged)
         self.lineEditUsername.textChanged.connect(self.FieldTextChanged)
@@ -127,23 +133,40 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
         self.lineEditDelay.textChanged.connect(self.FieldTextChanged)
         self.lineEditIp.textChanged.connect(self.FieldTextChanged)
 
+        #Creating the thread Progress with different signals
         self.progressView = Progress()
         self.progressView.notifyProgress.connect(self.onProgress)
         self.progressView.notifyStatus.connect(self.onStatus)
 
+        #Matching the finishing of the thread with a function
         self.progressView.finished.connect(self.threadDone)
 
-        #self.pushButtonSend.clicked.connect(self.ssh_connect)
+        # Matching the button click event with a function
         self.pushButtonSend.clicked.connect(self.sendData)
 
     def onStatus(self, msg):
+        """
+        Function to update the status if the label to add feedback to the user
+        :param msg: Message to display
+        :return:
+        """
         self.labelStatus.setText(msg)
 
     def onProgress(self, i, com):
+        """
+        Function to update the progress of teh commands sent
+        :param i: Percentage
+        :param com: Command being sent
+        :return:
+        """
         self.progressBar.setValue(i)
         self.labelCommand.setText(com)
 
     def threadDone(self):
+        """
+        Function to do clean up the GUI after the thread is done
+        :return:
+        """
         self.labelSendingCommand.setEnabled(False)
         self.labelCommand.setEnabled(False)
         self.progressBar.setEnabled(False)
@@ -153,6 +176,10 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
         self.labelStatus.setText("Waiting for Input...")
 
     def sendData(self):
+        """
+        Function that will run as soon as the Send button was clicked and starts the parallel thread
+        :return:
+        """
         self.progressView.ip = str(self.lineEditIp.text())
         self.progressView.host = str(self.lineEditHostname.text())
         self.progressView.username = str(self.lineEditUsername.text())
@@ -166,6 +193,10 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
         self.progressView.start()
 
     def FieldTextChanged(self):
+        """
+        Function to check that all the fields where filled before enabling the Send Button
+        :return:
+        """
         if self.plainTextEditCommands.toPlainText() <> '' and self.lineEditHostname.text() <> '' and \
                         self.lineEditUsername.text() <> '' and self.lineEditPassword.text() <> '' and \
                         self.lineEditDelay.text() <> '' and self.lineEditIp.text() <> '':
@@ -177,6 +208,7 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
 
 
 if __name__ == "__main__":
+    #Create The pyQT application
     app = QtGui.QApplication(sys.argv)
     window = MyApp()
     window.show()
