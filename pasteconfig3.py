@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import sys
-from PyQt4 import QtCore, QtGui, uic
+from PyQt5 import QtCore, QtGui, uic
 import paramiko
 import re
 import time
