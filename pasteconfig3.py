@@ -197,9 +197,9 @@ class MyApp(QtGui.QMainWindow, Ui_MainWindow):
         Function to check that all the fields where filled before enabling the Send Button
         :return:
         """
-        if self.plainTextEditCommands.toPlainText() <> '' and self.lineEditHostname.text() <> '' and \
-                        self.lineEditUsername.text() <> '' and self.lineEditPassword.text() <> '' and \
-                        self.lineEditDelay.text() <> '' and self.lineEditIp.text() <> '':
+        if self.plainTextEditCommands.toPlainText() != '' and self.lineEditHostname.text() != '' and \
+                        self.lineEditUsername.text() != '' and self.lineEditPassword.text() != '' and \
+                        self.lineEditDelay.text() != '' and self.lineEditIp.text() != '':
 
             self.pushButtonSend.setEnabled(True)
             self.labelStatus.setText("Ready to connect!!!")
